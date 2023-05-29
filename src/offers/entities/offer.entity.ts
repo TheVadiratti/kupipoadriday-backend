@@ -5,11 +5,9 @@ import { Wish } from 'src/wishes/entities/wish.entity';
 
 @Entity()
 export class Offer extends Common {
-  @Column()
   @ManyToOne(() => User, (user) => user.offers)
   user: User;
 
-  @Column()
   @ManyToOne(() => Wish, (wish) => wish.offers)
   item: Wish;
 

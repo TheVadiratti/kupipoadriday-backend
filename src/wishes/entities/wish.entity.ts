@@ -24,7 +24,6 @@ export class Wish extends Common {
   @Column({ type: 'decimal', scale: 2 })
   reised: number;
 
-  @Column()
   @ManyToOne(() => User, (user) => user.wishes)
   owner: User;
 
@@ -32,7 +31,6 @@ export class Wish extends Common {
   @Length(1, 1024)
   description: string;
 
-  @Column()
   @OneToMany(() => Offer, (offer) => offer.item)
   offers: Offer[];
 

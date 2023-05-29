@@ -6,7 +6,6 @@ import { User } from 'src/users/entities/user.entity';
 
 @Entity()
 export class Wishlist extends Common {
-  @Column()
   @ManyToOne(() => User, (user) => user.wishlists)
   owner: User;
 
@@ -22,7 +21,6 @@ export class Wishlist extends Common {
   @IsUrl()
   image: string;
 
-  @Column()
   @ManyToMany(() => Wish)
   @JoinTable()
   items: Wish[];

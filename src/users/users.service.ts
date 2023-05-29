@@ -4,6 +4,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { Repository, FindManyOptions, FindOneOptions } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
+import bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -13,7 +14,9 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
-    return await this.userRepository.save(createUserDto);
+    const { password, ...other } = createUserDto;
+    const hash = await bcrypt.hash(password, 10);
+    return this.userRepository.save({ password: hash, ...other });
   }
 
   async findSome(query?: FindManyOptions<User>): Promise<User[]> {
