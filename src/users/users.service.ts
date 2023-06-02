@@ -29,15 +29,15 @@ export class UsersService {
 
   async updateOne(query: FindOneOptions<User>, updateUserDto: UpdateUserDto) {
     try {
-      const curr = await this.userRepository.findOne(query);
-      return await this.userRepository.update(curr.id, updateUserDto);
+      const user = await this.userRepository.findOne(query);
+      return await this.userRepository.update(user.id, updateUserDto);
     } catch (err) {
       return err.message;
     }
   }
 
   async removeOne(query: FindOneOptions<User>) {
-    const curr = await this.userRepository.findOne(query);
-    return await this.userRepository.delete(curr.id);
+    const user = await this.userRepository.findOne(query);
+    return await this.userRepository.delete(user.id);
   }
 }
