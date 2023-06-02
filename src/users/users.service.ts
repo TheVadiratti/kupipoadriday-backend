@@ -19,7 +19,7 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     createUserDto.password = await this.getHash(createUserDto.password, 10);
-    return this.userRepository.save(createUserDto);
+    return await this.userRepository.save(createUserDto);
   }
 
   async findMany(query?: FindManyOptions<User>): Promise<User[]> {
