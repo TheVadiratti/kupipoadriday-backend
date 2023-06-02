@@ -11,6 +11,7 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { FindUserDto } from './dto/find-users.dto';
 import { JwtGuard } from '../auth/auth.guard';
 import { AuthRequest } from '../types';
 
@@ -46,5 +47,15 @@ export class UsersController {
       },
       updateUserDto,
     );
+  }
+
+  @UseGuards(JwtGuard)
+  @Post('find')
+  findMany(@Body() findUserDto: FindUserDto) {
+    const { query } = findUserDto;
+
+    return this.usersService.findMany({
+      where: [{ username: query }, { email: query }],
+    });
   }
 }

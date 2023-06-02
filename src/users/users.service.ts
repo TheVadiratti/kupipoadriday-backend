@@ -22,7 +22,7 @@ export class UsersService {
     return this.userRepository.save(createUserDto);
   }
 
-  async findSome(query?: FindManyOptions<User>): Promise<User[]> {
+  async findMany(query?: FindManyOptions<User>): Promise<User[]> {
     return await this.userRepository.find(query);
   }
 
