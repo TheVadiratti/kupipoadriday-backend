@@ -13,10 +13,13 @@ export class UsersService {
     private userRepository: Repository<User>,
   ) {}
 
+  async getHash(password: string, saltOrRounds: string | number) {
+    return await bcrypt.hash(password, saltOrRounds);
+  }
+
   async create(createUserDto: CreateUserDto): Promise<User> {
-    const { password, ...other } = createUserDto;
-    const hash = await bcrypt.hash(password, 10);
-    return this.userRepository.save({ password: hash, ...other });
+    createUserDto.password = await this.getHash(createUserDto.password, 10);
+    return this.userRepository.save(createUserDto);
   }
 
   async findSome(query?: FindManyOptions<User>): Promise<User[]> {
@@ -28,6 +31,10 @@ export class UsersService {
   }
 
   async updateOne(query: FindOneOptions<User>, updateUserDto: UpdateUserDto) {
+    if (updateUserDto.password) {
+      updateUserDto.password = await this.getHash(updateUserDto.password, 10);
+    }
+
     try {
       const user = await this.userRepository.findOne(query);
       return await this.userRepository.update(user.id, updateUserDto);
