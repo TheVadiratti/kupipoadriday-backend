@@ -20,7 +20,6 @@ export class AuthService {
   async validatePassword(username: string, password: string) {
     const user = await this.usersService.findOne({ where: { username } });
 
-    // TODO записывает не хеш
     if (user) {
       return await bcrypt
         .compare(password, user.password)
@@ -28,9 +27,7 @@ export class AuthService {
           if (!matched) {
             return null;
           }
-          delete user.password;
-
-          return user;
+          return this.usersService.deletePassword(user);
         })
         .catch(() => {
           return null;
