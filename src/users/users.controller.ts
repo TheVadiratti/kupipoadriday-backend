@@ -18,12 +18,6 @@ import { AuthRequest } from '../types';
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
-
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
-  }
-
   @UseGuards(JwtGuard)
   @Get('me')
   findOwn(@Req() req: AuthRequest) {

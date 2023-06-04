@@ -13,11 +13,10 @@ export class User extends Common {
   username: string;
 
   @Column({ default: 'Пока ничего не рассказал о себе' })
-  @Length(2, 200)
+  @Length(0, 200)
   about: string;
 
   @Column({ default: 'https://i.pravatar.cc/300' })
-  @IsUrl()
   avatar: string;
 
   @Column({ unique: true })
