@@ -9,7 +9,6 @@ import {
   Param,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { FindUserDto } from './dto/find-users.dto';
 import { JwtGuard } from '../auth/auth.guard';
@@ -20,36 +19,41 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
   @UseGuards(JwtGuard)
   @Get('me')
-  findOwn(@Req() req: AuthRequest) {
-    return this.usersService.findOne({
+  async findOwn(@Req() req: AuthRequest) {
+    const user = await this.usersService.findOne({
       where: { username: req.user.username },
     });
+    return this.usersService.deletePassword(user);
   }
 
   @UseGuards(JwtGuard)
   @Get(':username')
-  findOne(@Param('username') username: string) {
-    return this.usersService.findOne({ where: { username } });
+  async findOne(@Param('username') username: string) {
+    const user = await this.usersService.findOne({ where: { username } });
+    return this.usersService.deletePassword(user);
   }
 
   @UseGuards(JwtGuard)
   @Patch('me')
-  update(@Req() req: AuthRequest, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.updateOne(
-      {
-        where: { username: req.user.username },
-      },
-      updateUserDto,
-    );
+  async update(@Req() req: AuthRequest, @Body() updateUserDto: UpdateUserDto) {
+    try {
+      const { username } = req.user;
+      await this.usersService.updateOne({ username }, updateUserDto);
+      const user = await this.usersService.findOne({ where: { username } });
+      return this.usersService.deletePassword(user);
+    } catch (err) {
+      return err.message;
+    }
   }
 
   @UseGuards(JwtGuard)
   @Post('find')
-  findMany(@Body() findUserDto: FindUserDto) {
+  async findMany(@Body() findUserDto: FindUserDto) {
     const { query } = findUserDto;
 
-    return this.usersService.findMany({
+    const [user] = await this.usersService.findMany({
       where: [{ username: query }, { email: query }],
     });
+    return this.usersService.deletePassword(user);
   }
 }

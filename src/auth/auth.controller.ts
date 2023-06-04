@@ -22,7 +22,6 @@ export class AuthController {
   @Post('signup')
   async signup(@Body() createUserDto: CreateUserDto) {
     const user = await this.usersService.create(createUserDto);
-    delete user.password;
-    return user;
+    return this.usersService.deletePassword(user);
   }
 }
