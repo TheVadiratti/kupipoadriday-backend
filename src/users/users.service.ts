@@ -6,6 +6,7 @@ import {
   FindManyOptions,
   FindOneOptions,
   FindOptionsWhere,
+  UpdateResult,
 } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
@@ -40,7 +41,10 @@ export class UsersService {
     return this.userRepository.findOne(query);
   }
 
-  async updateOne(query: FindOptionsWhere<User>, updateUserDto: UpdateUserDto) {
+  async update(
+    query: FindOptionsWhere<User>,
+    updateUserDto: UpdateUserDto,
+  ): Promise<UpdateResult> {
     if (updateUserDto.password) {
       updateUserDto.password = await this.getHash(updateUserDto.password, 10);
     }

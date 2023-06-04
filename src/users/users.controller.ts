@@ -36,7 +36,7 @@ export class UsersController {
   async update(@Req() req: AuthRequest, @Body() updateUserDto: UpdateUserDto) {
     try {
       const { username } = req.user;
-      await this.usersService.updateOne({ username }, updateUserDto);
+      await this.usersService.update({ username }, updateUserDto);
       const user = await this.usersService.findOne({ where: { username } });
       return this.usersService.deletePassword(user);
     } catch (err) {
