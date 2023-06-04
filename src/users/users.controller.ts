@@ -15,9 +15,9 @@ import { JwtGuard } from '../auth/auth.guard';
 import { AuthRequest } from '../types';
 
 @Controller('users')
+@UseGuards(JwtGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
-  @UseGuards(JwtGuard)
   @Get('me')
   async findOwn(@Req() req: AuthRequest) {
     const user = await this.usersService.findOne({
@@ -26,14 +26,12 @@ export class UsersController {
     return this.usersService.deletePassword(user);
   }
 
-  @UseGuards(JwtGuard)
   @Get(':username')
   async findOne(@Param('username') username: string) {
     const user = await this.usersService.findOne({ where: { username } });
     return this.usersService.deletePassword(user);
   }
 
-  @UseGuards(JwtGuard)
   @Patch('me')
   async update(@Req() req: AuthRequest, @Body() updateUserDto: UpdateUserDto) {
     try {
@@ -46,7 +44,6 @@ export class UsersController {
     }
   }
 
-  @UseGuards(JwtGuard)
   @Post('find')
   async findMany(@Body() findUserDto: FindUserDto) {
     const { query } = findUserDto;
