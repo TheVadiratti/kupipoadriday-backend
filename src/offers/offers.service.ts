@@ -2,8 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindManyOptions, FindOneOptions } from 'typeorm';
 import { CreateOfferDto } from './dto/create-offer.dto';
-import { UpdateOfferDto } from './dto/update-offer.dto';
 import { Offer } from './entities/offer.entity';
+import { User } from 'src/users/entities/user.entity';
+import { Wish } from 'src/wishes/entities/wish.entity';
 
 @Injectable()
 export class OffersService {
@@ -12,32 +13,21 @@ export class OffersService {
     private offerRepository: Repository<Offer>,
   ) {}
 
-  async create(createOfferDto: CreateOfferDto): Promise<Offer> {
-    return await this.offerRepository.save(createOfferDto);
+  create(
+    createOfferDto: CreateOfferDto,
+    user: User,
+    wish: Wish,
+  ): Promise<Offer> {
+    delete createOfferDto.itemId;
+    const offer = { user, item: wish, ...createOfferDto };
+    return this.offerRepository.save(offer);
   }
 
-  async findSome(query?: FindManyOptions<Offer>): Promise<Offer[]> {
-    return await this.offerRepository.find(query);
+  findAll(query?: FindManyOptions<Offer>): Promise<Offer[]> {
+    return this.offerRepository.find(query);
   }
 
-  async findOne(query: FindOneOptions<Offer>) {
-    return await this.offerRepository.findOne(query);
-  }
-
-  async updateOne(
-    query: FindOneOptions<Offer>,
-    updateOfferDto: UpdateOfferDto,
-  ) {
-    try {
-      const curr = await this.offerRepository.findOne(query);
-      return await this.offerRepository.update(curr.id, updateOfferDto);
-    } catch (err) {
-      return err.message;
-    }
-  }
-
-  async removeOne(query: FindOneOptions<Offer>) {
-    const curr = await this.offerRepository.findOne(query);
-    return await this.offerRepository.delete(curr.id);
+  findOne(query: FindOneOptions<Offer>): Promise<Offer> {
+    return this.offerRepository.findOne(query);
   }
 }
