@@ -7,6 +7,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { LocalStrategy } from './local.service';
 import { AuthController } from './auth.controller';
+import { JWT_SECRET } from 'mainconfig';
 
 @Module({
   imports: [
@@ -16,7 +17,7 @@ import { AuthController } from './auth.controller';
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async () => ({
-        secret: 'JwtSecret',
+        secret: JWT_SECRET,
       }),
       inject: [ConfigService],
     }),
