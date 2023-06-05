@@ -2,7 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { CreateWishDto } from './dto/create-wish.dto';
 import { UpdateWishDto } from './dto/update-wish.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindManyOptions, FindOneOptions } from 'typeorm';
+import {
+  Repository,
+  FindOneOptions,
+  FindOptionsWhere,
+  UpdateResult,
+  DeleteResult,
+} from 'typeorm';
 import { Wish } from './entities/wish.entity';
 
 @Injectable()
@@ -12,29 +18,22 @@ export class WishesService {
     private wishRepository: Repository<Wish>,
   ) {}
 
-  async create(createWishDto: CreateWishDto): Promise<Wish> {
-    return await this.wishRepository.save(createWishDto);
+  create(createWishDto: CreateWishDto): Promise<Wish> {
+    return this.wishRepository.save(createWishDto);
   }
 
-  async findSome(query?: FindManyOptions<Wish>): Promise<Wish[]> {
-    return await this.wishRepository.find(query);
+  findOne(query: FindOneOptions<Wish>): Promise<Wish> {
+    return this.wishRepository.findOne(query);
   }
 
-  async findOne(query: FindOneOptions<Wish>) {
-    return await this.wishRepository.findOne(query);
+  update(
+    query: FindOptionsWhere<Wish>,
+    updateWishDto: UpdateWishDto,
+  ): Promise<UpdateResult> {
+    return this.wishRepository.update(query, updateWishDto);
   }
 
-  async updateOne(query: FindOneOptions<Wish>, updateWishDto: UpdateWishDto) {
-    try {
-      const curr = await this.wishRepository.findOne(query);
-      return await this.wishRepository.update(curr.id, updateWishDto);
-    } catch (err) {
-      return err.message;
-    }
-  }
-
-  async removeOne(query: FindOneOptions<Wish>) {
-    const curr = await this.wishRepository.findOne(query);
-    return await this.wishRepository.delete(curr.id);
+  removeOne(query: FindOptionsWhere<Wish>): Promise<DeleteResult> {
+    return this.wishRepository.delete(query);
   }
 }

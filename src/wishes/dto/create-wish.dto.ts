@@ -14,5 +14,6 @@ export class CreateWishDto {
   price: number;
 
   @IsString()
+  @Length(1, 1024)
   description: string;
 }

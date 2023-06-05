@@ -16,22 +16,28 @@ export class WishesController {
   constructor(private readonly wishesService: WishesService) {}
 
   @Post()
-  create(@Body() createWishDto: CreateWishDto) {
-    return this.wishesService.create(createWishDto);
+  async create(@Body() createWishDto: CreateWishDto) {
+    return await this.wishesService.create(createWishDto);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: number) {
-    return this.wishesService.findOne({ where: { id } });
+  async findOne(@Param('id') id: number) {
+    return await this.wishesService.findOne({ where: { id } });
   }
 
   @Patch(':id')
-  update(@Param('id') id: number, @Body() updateWishDto: UpdateWishDto) {
-    return this.wishesService.updateOne({ where: { id } }, updateWishDto);
+  async update(@Param('id') id: number, @Body() updateWishDto: UpdateWishDto) {
+    try {
+      await this.wishesService.update({ id }, updateWishDto);
+    } catch (err) {
+      return err.message;
+    }
   }
 
-  @Delete('id')
-  removeOne(@Param('id') id: number) {
-    return this.wishesService.removeOne({ where: { id } });
+  @Delete(':id')
+  async removeOne(@Param('id') id: number) {
+    const wish = await this.wishesService.findOne({ where: { id } });
+    await this.wishesService.removeOne({ id });
+    return wish;
   }
 }
