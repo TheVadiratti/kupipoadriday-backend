@@ -1,9 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindManyOptions, FindOneOptions } from 'typeorm';
+import {
+  Repository,
+  FindManyOptions,
+  FindOneOptions,
+  FindOptionsWhere,
+  UpdateResult,
+  DeleteResult,
+} from 'typeorm';
 import { CreateWishlistDto } from './dto/create-wishlist.dto';
 import { UpdateWishlistDto } from './dto/update-wishlist.dto';
 import { Wishlist } from './entities/wishlist.entity';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class WishlistsService {
@@ -12,32 +20,30 @@ export class WishlistsService {
     private wishlistRepository: Repository<Wishlist>,
   ) {}
 
-  async create(createWishlistDto: CreateWishlistDto): Promise<Wishlist> {
-    return await this.wishlistRepository.save(createWishlistDto);
+  async create(
+    createWishlistDto: CreateWishlistDto,
+    user: User,
+  ): Promise<Wishlist> {
+    const wishlist = { ...createWishlistDto, owner: user };
+    return this.wishlistRepository.save(wishlist);
   }
 
-  async findSome(query?: FindManyOptions<Wishlist>): Promise<Wishlist[]> {
-    return await this.wishlistRepository.find(query);
+  findMany(query?: FindManyOptions<Wishlist>): Promise<Wishlist[]> {
+    return this.wishlistRepository.find(query);
   }
 
-  async findOne(query: FindOneOptions<Wishlist>) {
-    return await this.wishlistRepository.findOne(query);
+  findOne(query: FindOneOptions<Wishlist>): Promise<Wishlist> {
+    return this.wishlistRepository.findOne(query);
   }
 
-  async updateOne(
-    query: FindOneOptions<Wishlist>,
+  update(
+    query: FindOptionsWhere<Wishlist>,
     updateWishlistDto: UpdateWishlistDto,
-  ) {
-    try {
-      const curr = await this.wishlistRepository.findOne(query);
-      return await this.wishlistRepository.update(curr.id, updateWishlistDto);
-    } catch (err) {
-      return err.message;
-    }
+  ): Promise<UpdateResult> {
+    return this.wishlistRepository.update(query, updateWishlistDto);
   }
 
-  async removeOne(query: FindOneOptions<Wishlist>) {
-    const curr = await this.wishlistRepository.findOne(query);
-    return await this.wishlistRepository.delete(curr.id);
+  delete(query: FindOptionsWhere<Wishlist>): Promise<DeleteResult> {
+    return this.wishlistRepository.delete(query);
   }
 }

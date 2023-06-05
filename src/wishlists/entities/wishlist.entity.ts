@@ -1,5 +1,5 @@
 import { Entity, Column, ManyToMany, JoinTable, ManyToOne } from 'typeorm';
-import { IsUrl, Length, MaxLength } from 'class-validator';
+import { IsNotEmpty, IsUrl, MaxLength } from 'class-validator';
 import { Common } from 'src/app.entity';
 import { Wish } from 'src/wishes/entities/wish.entity';
 import { User } from 'src/users/entities/user.entity';
@@ -10,7 +10,8 @@ export class Wishlist extends Common {
   owner: User;
 
   @Column()
-  @Length(1, 250)
+  @IsNotEmpty()
+  @MaxLength(250)
   name: string;
 
   @Column()
