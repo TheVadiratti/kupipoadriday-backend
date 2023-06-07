@@ -4,6 +4,7 @@ import { Common } from 'src/app.entity';
 import { Wish } from 'src/wishes/entities/wish.entity';
 import { Offer } from 'src/offers/entities/offer.entity';
 import { Wishlist } from 'src/wishlists/entities/wishlist.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity()
 export class User extends Common {
@@ -24,6 +25,7 @@ export class User extends Common {
 
   @Column()
   @IsNotEmpty()
+  @Exclude()
   password: string;
 
   @OneToMany(() => Wish, (wish) => wish.owner)

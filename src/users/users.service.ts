@@ -25,7 +25,10 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     createUserDto.password = await this.getHash(createUserDto.password, 10);
-    return this.userRepository.save(createUserDto);
+    await this.userRepository.save(createUserDto);
+    return this.userRepository.findOne({
+      where: { username: createUserDto.username },
+    });
   }
 
   findMany(query?: FindManyOptions<User>): Promise<User[]> {
