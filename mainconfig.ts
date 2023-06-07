@@ -14,9 +14,9 @@ const DATABASE_OPTIONS: TypeOrmModuleOptions = {
   type: 'postgres',
   host: 'localhost',
   port: 5432,
-  username: 'student',
-  password: 'student',
-  database: 'kupipodariday',
+  username: process.env.DB_USERNAME,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
   entities: [User, Offer, Wish, Wishlist],
   synchronize: true,
 };
