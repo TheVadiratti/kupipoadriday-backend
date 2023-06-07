@@ -30,12 +30,17 @@ export class WishlistsController {
 
   @Get()
   async findAll() {
-    return await this.wishlistsService.findMany();
+    return await this.wishlistsService.findMany({ relations: { owner: true } });
   }
 
   @Get(':id')
   async findOne(@Param('id') id: number) {
-    return await this.wishlistsService.findOne({ where: { id } });
+    return await this.wishlistsService.findOne({
+      where: { id },
+      relations: {
+        owner: true,
+      },
+    });
   }
 
   @Patch(':id')
