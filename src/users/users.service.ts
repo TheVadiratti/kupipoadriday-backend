@@ -23,11 +23,6 @@ export class UsersService {
     return bcrypt.hash(password, saltOrRounds);
   }
 
-  deletePassword(user: User) {
-    delete user.password;
-    return user;
-  }
-
   async create(createUserDto: CreateUserDto): Promise<User> {
     createUserDto.password = await this.getHash(createUserDto.password, 10);
     return this.userRepository.save(createUserDto);

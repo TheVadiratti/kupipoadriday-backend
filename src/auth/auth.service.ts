@@ -27,7 +27,7 @@ export class AuthService {
           if (!matched) {
             return null;
           }
-          return this.usersService.deletePassword(user);
+          return user;
         })
         .catch(() => {
           return null;

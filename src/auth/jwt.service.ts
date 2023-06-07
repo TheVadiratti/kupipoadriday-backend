@@ -22,6 +22,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException();
     }
 
-    return this.usersService.deletePassword(user);
+    return user;
   }
 }

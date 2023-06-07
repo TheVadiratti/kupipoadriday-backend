@@ -20,16 +20,14 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
   @Get('me')
   async findOwn(@Req() req: AuthRequest) {
-    const user = await this.usersService.findOne({
+    return await this.usersService.findOne({
       where: { username: req.user.username },
     });
-    return this.usersService.deletePassword(user);
   }
 
   @Get(':username')
   async findOne(@Param('username') username: string) {
-    const user = await this.usersService.findOne({ where: { username } });
-    return this.usersService.deletePassword(user);
+    return await this.usersService.findOne({ where: { username } });
   }
 
   @Patch('me')
@@ -37,8 +35,7 @@ export class UsersController {
     try {
       const { username } = req.user;
       await this.usersService.update({ username }, updateUserDto);
-      const user = await this.usersService.findOne({ where: { username } });
-      return this.usersService.deletePassword(user);
+      return await this.usersService.findOne({ where: { username } });
     } catch (err) {
       return err.message;
     }
@@ -51,6 +48,6 @@ export class UsersController {
     const [user] = await this.usersService.findMany({
       where: [{ username: query }, { email: query }],
     });
-    return this.usersService.deletePassword(user);
+    return user;
   }
 }
