@@ -1,4 +1,11 @@
-import { Controller, Post, UseGuards, Req, Body } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  UseGuards,
+  Req,
+  Body,
+  SerializeOptions,
+} from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { AuthService } from './auth.service';
 import { LocalGuard } from './local.guard';
@@ -20,6 +27,7 @@ export class AuthController {
   }
 
   @Post('signup')
+  @SerializeOptions({ groups: ['owner'] })
   async signup(@Body() createUserDto: CreateUserDto) {
     return await this.usersService.create(createUserDto);
   }
