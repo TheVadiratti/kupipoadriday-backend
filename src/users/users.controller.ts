@@ -14,15 +14,11 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { FindUserDto } from './dto/find-users.dto';
 import { JwtGuard } from '../auth/auth.guard';
 import { AuthRequest } from '../types';
-import { WishesService } from '../wishes/wishes.service';
 
 @Controller('users')
 @UseGuards(JwtGuard)
 export class UsersController {
-  constructor(
-    private readonly usersService: UsersService,
-    private readonly wishesService: WishesService,
-  ) {}
+  constructor(private readonly usersService: UsersService) {}
 
   @Get('me')
   @SerializeOptions({ groups: ['owner'] })
@@ -62,21 +58,23 @@ export class UsersController {
 
   @Get('me/wishes')
   async getOwnWishes(@Req() req: AuthRequest) {
-    return await this.wishesService.findMany({
-      where: {
-        owner: {
-          username: req.user.username,
-        },
+    const user = await this.usersService.findOne({
+      where: { username: req.user.username },
+      relations: {
+        wishes: true,
       },
     });
+    return user.wishes;
   }
 
   @Get(':username/wishes')
   async getWishes(@Param('username') username: string) {
-    return this.wishesService.findMany({
-      where: {
-        owner: { username },
+    const user = await this.usersService.findOne({
+      where: { username },
+      relations: {
+        wishes: true,
       },
     });
+    return user.wishes;
   }
 }
