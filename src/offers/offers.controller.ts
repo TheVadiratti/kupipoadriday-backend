@@ -29,7 +29,7 @@ export class OffersController {
     const wish = await this.wishesService.findOne({
       where: { id: createOfferDto.itemId },
     });
-    return await this.offersService.create(createOfferDto, req.user, wish);
+    await this.offersService.create(createOfferDto, req.user, wish);
   }
 
   @Get()
