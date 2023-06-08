@@ -26,7 +26,7 @@ export class UsersService {
   async create(createUserDto: CreateUserDto): Promise<User> {
     createUserDto.password = await this.getHash(createUserDto.password, 10);
     await this.userRepository.save(createUserDto);
-    return this.userRepository.findOne({
+    return this.findOne({
       where: { username: createUserDto.username },
     });
   }
