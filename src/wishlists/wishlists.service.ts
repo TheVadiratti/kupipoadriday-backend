@@ -5,7 +5,6 @@ import {
   FindManyOptions,
   FindOneOptions,
   FindOptionsWhere,
-  UpdateResult,
   DeleteResult,
 } from 'typeorm';
 import { CreateWishlistDto } from './dto/create-wishlist.dto';
@@ -36,11 +35,16 @@ export class WishlistsService {
     return this.wishlistRepository.findOne(query);
   }
 
-  update(
+  async update(
     query: FindOptionsWhere<Wishlist>,
     updateWishlistDto: UpdateWishlistDto,
-  ): Promise<UpdateResult> {
-    return this.wishlistRepository.update(query, updateWishlistDto);
+  ): Promise<Wishlist> {
+    const wishlist = await this.findOne({ where: query });
+    const { itemsId, ...other } = updateWishlistDto;
+    const items = itemsId.map((id) => ({ id }));
+    const updatedWishlist = { ...wishlist, ...other, items };
+
+    return this.wishlistRepository.save(updatedWishlist);
   }
 
   delete(query: FindOptionsWhere<Wishlist>): Promise<DeleteResult> {

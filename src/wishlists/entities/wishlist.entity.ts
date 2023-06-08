@@ -1,5 +1,5 @@
 import { Entity, Column, ManyToMany, JoinTable, ManyToOne } from 'typeorm';
-import { IsNotEmpty, IsUrl, MaxLength } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsUrl, MaxLength } from 'class-validator';
 import { Common } from 'src/app.entity';
 import { Wish } from 'src/wishes/entities/wish.entity';
 import { User } from 'src/users/entities/user.entity';
@@ -24,5 +24,6 @@ export class Wishlist extends Common {
 
   @ManyToMany(() => Wish)
   @JoinTable()
+  @IsOptional()
   items: Wish[];
 }

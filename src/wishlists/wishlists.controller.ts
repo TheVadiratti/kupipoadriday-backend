@@ -30,7 +30,12 @@ export class WishlistsController {
 
   @Get()
   async findAll() {
-    return await this.wishlistsService.findMany({ relations: { owner: true } });
+    return await this.wishlistsService.findMany({
+      relations: {
+        owner: true,
+        items: true,
+      },
+    });
   }
 
   @Get(':id')
@@ -39,6 +44,7 @@ export class WishlistsController {
       where: { id },
       relations: {
         owner: true,
+        items: true,
       },
     });
   }
@@ -58,7 +64,15 @@ export class WishlistsController {
 
   @Delete(':id')
   async removeOne(@Param('id') id: number) {
-    const wishlist = this.wishlistsService.findOne({ where: { id } });
+    const wishlist = await this.wishlistsService.findOne({
+      where: {
+        id,
+      },
+      relations: {
+        owner: true,
+        items: true,
+      },
+    });
     await this.wishlistsService.delete({ id });
     return wishlist;
   }
