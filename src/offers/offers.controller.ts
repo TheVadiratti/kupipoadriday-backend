@@ -11,25 +11,18 @@ import { OffersService } from './offers.service';
 import { CreateOfferDto } from './dto/create-offer.dto';
 import { AuthRequest } from '../types';
 import { JwtGuard } from '../auth/auth.guard';
-import { WishesService } from '../wishes/wishes.service';
 
 @Controller('offers')
 @UseGuards(JwtGuard)
 export class OffersController {
-  constructor(
-    private readonly offersService: OffersService,
-    private readonly wishesService: WishesService,
-  ) {}
+  constructor(private readonly offersService: OffersService) {}
 
   @Post()
   async create(
     @Body() createOfferDto: CreateOfferDto,
     @Req() req: AuthRequest,
   ) {
-    const wish = await this.wishesService.findOne({
-      where: { id: createOfferDto.itemId },
-    });
-    await this.offersService.create(createOfferDto, req.user, wish);
+    await this.offersService.create(createOfferDto, req.user);
   }
 
   @Get()

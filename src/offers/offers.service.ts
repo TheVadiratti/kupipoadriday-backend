@@ -4,20 +4,24 @@ import { Repository, FindManyOptions, FindOneOptions } from 'typeorm';
 import { CreateOfferDto } from './dto/create-offer.dto';
 import { Offer } from './entities/offer.entity';
 import { User } from 'src/users/entities/user.entity';
-import { Wish } from 'src/wishes/entities/wish.entity';
+import { WishesService } from 'src/wishes/wishes.service';
+import { getReised } from './offers.helper';
 
 @Injectable()
 export class OffersService {
   constructor(
     @InjectRepository(Offer)
     private offerRepository: Repository<Offer>,
+    private wishesService: WishesService,
   ) {}
 
-  create(
-    createOfferDto: CreateOfferDto,
-    user: User,
-    wish: Wish,
-  ): Promise<Offer> {
+  async create(createOfferDto: CreateOfferDto, user: User): Promise<Offer> {
+    const id = createOfferDto.itemId;
+    const wish = await this.wishesService.findOne({
+      where: { id },
+    });
+    wish.reised = getReised(wish.reised, createOfferDto.amount);
+    await this.wishesService.update({ id }, wish);
     delete createOfferDto.itemId;
     const offer = { user, item: wish, ...createOfferDto };
     return this.offerRepository.save(offer);
