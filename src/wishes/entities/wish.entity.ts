@@ -22,7 +22,7 @@ export class Wish extends Common {
   price: number;
 
   @Column({ type: 'decimal', scale: 2, default: 0 })
-  reised: number;
+  raised: number;
 
   @ManyToOne(() => User, (user) => user.wishes)
   owner: User;

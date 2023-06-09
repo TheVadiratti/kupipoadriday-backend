@@ -20,9 +20,10 @@ export class OffersService {
     const wish = await this.wishesService.findOne({
       where: { id },
     });
-    wish.reised = getReised(Number(wish.reised), createOfferDto.amount);
+    wish.raised = getReised(Number(wish.raised), createOfferDto.amount);
     await this.wishesService.update({ id }, wish);
     delete createOfferDto.itemId;
+    createOfferDto.amount = Number(createOfferDto.amount.toFixed(2));
     const offer = { user, item: wish, ...createOfferDto };
     return this.offerRepository.save(offer);
   }

@@ -11,7 +11,7 @@ export class Offer extends Common {
   @ManyToOne(() => Wish, (wish) => wish.offers)
   item: Wish;
 
-  @Column({ type: 'decimal', scale: 2 })
+  @Column({ type: 'decimal', scale: 2, default: 0 })
   amount: number;
 
   @Column({ default: false })

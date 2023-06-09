@@ -1,4 +1,4 @@
-export const getReised = (reised: number, amount: number): number => {
-  const result = reised + amount;
+export const getReised = (raised: number, amount: number): number => {
+  const result = raised + amount;
   return Number(result.toFixed(2));
 };
