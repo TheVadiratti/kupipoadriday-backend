@@ -8,12 +8,16 @@ import {
   Req,
   Param,
   SerializeOptions,
+  ConflictException,
+  BadRequestException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { FindUserDto } from './dto/find-users.dto';
 import { JwtGuard } from '../auth/auth.guard';
 import { AuthRequest } from '../utils/types';
+import { QueryFailedError } from 'typeorm';
+import { userAlreadyExist } from 'src/utils/constants';
 
 @Controller('users')
 @UseGuards(JwtGuard)
@@ -41,7 +45,12 @@ export class UsersController {
       await this.usersService.update({ username }, updateUserDto);
       return await this.usersService.findOne({ where: { username } });
     } catch (err) {
-      return err.message;
+      if (err instanceof QueryFailedError) {
+        if (err.driverError.code === '23505') {
+          throw new ConflictException(userAlreadyExist);
+        }
+      }
+      throw new BadRequestException('Ошибка валидации переданных значений.');
     }
   }
 
