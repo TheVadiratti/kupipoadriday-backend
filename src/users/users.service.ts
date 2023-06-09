@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ConflictException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import {
@@ -7,10 +7,12 @@ import {
   FindOneOptions,
   FindOptionsWhere,
   UpdateResult,
+  QueryFailedError,
 } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
+import { userAlreadyExist } from '../utils/constants';
 
 @Injectable()
 export class UsersService {
@@ -24,11 +26,20 @@ export class UsersService {
   }
 
   async create(createUserDto: CreateUserDto): Promise<User> {
-    createUserDto.password = await this.getHash(createUserDto.password, 10);
-    await this.userRepository.save(createUserDto);
-    return this.findOne({
-      where: { username: createUserDto.username },
-    });
+    try {
+      const user = this.userRepository.create(createUserDto);
+      user.password = await this.getHash(createUserDto.password, 10);
+      await this.userRepository.save(user);
+      return this.findOne({
+        where: { username: createUserDto.username },
+      });
+    } catch (err) {
+      if (err instanceof QueryFailedError) {
+        if (err.driverError.code === '23505') {
+          throw new ConflictException(userAlreadyExist);
+        }
+      }
+    }
   }
 
   findMany(query?: FindManyOptions<User>): Promise<User[]> {
