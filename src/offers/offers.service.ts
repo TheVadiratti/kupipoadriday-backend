@@ -20,7 +20,7 @@ export class OffersService {
     const wish = await this.wishesService.findOne({
       where: { id },
     });
-    wish.reised = getReised(wish.reised, createOfferDto.amount);
+    wish.reised = getReised(Number(wish.reised), createOfferDto.amount);
     await this.wishesService.update({ id }, wish);
     delete createOfferDto.itemId;
     const offer = { user, item: wish, ...createOfferDto };
