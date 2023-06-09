@@ -13,7 +13,7 @@ import { WishesService } from './wishes.service';
 import { CreateWishDto } from './dto/create-wish.dto';
 import { UpdateWishDto } from './dto/update-wish.dto';
 import { JwtGuard } from '../auth/auth.guard';
-import { AuthRequest } from '../types';
+import { AuthRequest } from '../utils/types';
 
 @Controller('wishes')
 export class WishesController {

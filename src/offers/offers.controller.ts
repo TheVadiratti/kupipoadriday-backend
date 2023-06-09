@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { OffersService } from './offers.service';
 import { CreateOfferDto } from './dto/create-offer.dto';
-import { AuthRequest } from '../types';
+import { AuthRequest } from '../utils/types';
 import { JwtGuard } from '../auth/auth.guard';
 
 @Controller('offers')

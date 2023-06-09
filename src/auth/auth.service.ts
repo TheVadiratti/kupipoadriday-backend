@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { User } from 'src/users/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
+import { wrongLoginOrPassword } from '../utils/constants';
 
 @Injectable()
 export class AuthService {
@@ -25,13 +26,15 @@ export class AuthService {
         .compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            return null;
+            throw new UnauthorizedException(wrongLoginOrPassword);
           }
           return user;
         })
         .catch(() => {
           return null;
         });
+    } else {
+      throw new UnauthorizedException(wrongLoginOrPassword);
     }
   }
 }

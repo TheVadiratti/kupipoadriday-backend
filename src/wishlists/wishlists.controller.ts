@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { WishlistsService } from './wishlists.service';
 import { CreateWishlistDto } from './dto/create-wishlist.dto';
-import { AuthRequest } from '../types';
+import { AuthRequest } from '../utils/types';
 import { JwtGuard } from '../auth/auth.guard';
 import { UpdateWishlistDto } from './dto/update-wishlist.dto';
 

@@ -10,7 +10,7 @@ import { UsersService } from '../users/users.service';
 import { AuthService } from './auth.service';
 import { LocalGuard } from './local.guard';
 import { CreateUserDto } from '../users/dto/create-user.dto';
-import { AuthRequest } from 'src/types';
+import { AuthRequest } from 'src/utils/types';
 
 @Controller()
 export class AuthController {
