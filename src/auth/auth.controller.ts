@@ -5,12 +5,15 @@ import {
   Req,
   Body,
   SerializeOptions,
+  ConflictException,
 } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { AuthService } from './auth.service';
 import { LocalGuard } from './local.guard';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { AuthRequest } from 'src/utils/types';
+import { QueryFailedError } from 'typeorm';
+import { userAlreadyExist } from 'src/utils/constants';
 
 @Controller()
 export class AuthController {
@@ -29,6 +32,14 @@ export class AuthController {
   @Post('signup')
   @SerializeOptions({ groups: ['owner'] })
   async signup(@Body() createUserDto: CreateUserDto) {
-    return await this.usersService.create(createUserDto);
+    try {
+      return await this.usersService.create(createUserDto);
+    } catch (err) {
+      if (err instanceof QueryFailedError) {
+        if (err.driverError.code === '23505') {
+          throw new ConflictException(userAlreadyExist);
+        }
+      }
+    }
   }
 }
