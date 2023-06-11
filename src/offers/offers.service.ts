@@ -5,7 +5,7 @@ import { CreateOfferDto } from './dto/create-offer.dto';
 import { Offer } from './entities/offer.entity';
 import { User } from 'src/users/entities/user.entity';
 import { WishesService } from 'src/wishes/wishes.service';
-import { getReised } from './offers.helper';
+import { Wish } from 'src/wishes/entities/wish.entity';
 
 @Injectable()
 export class OffersService {
@@ -17,14 +17,16 @@ export class OffersService {
 
   async create(createOfferDto: CreateOfferDto, user: User): Promise<Offer> {
     const id = createOfferDto.itemId;
-    const wish = await this.wishesService.findOne({
-      where: { id },
-    });
-    wish.raised = getReised(Number(wish.raised), createOfferDto.amount);
-    await this.wishesService.update({ id }, wish);
+    const { amount } = createOfferDto;
+
+    await this.wishesService.updateRaised(id, user, amount);
+
     delete createOfferDto.itemId;
     createOfferDto.amount = Number(createOfferDto.amount.toFixed(2));
-    const offer = { user, item: wish, ...createOfferDto };
+
+    const offer = this.offerRepository.create(createOfferDto);
+    offer.user = user;
+    offer.item = { id } as Wish;
     return this.offerRepository.save(offer);
   }
 

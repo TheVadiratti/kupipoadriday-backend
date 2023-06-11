@@ -60,13 +60,7 @@ export class WishesController {
   @Post(':id/copy')
   @UseGuards(JwtGuard)
   async copyWish(@Param('id') id: number, @Req() req: AuthRequest) {
-    const wish = await this.wishesService.findOne({ where: { id } });
-    const { name, link, image, price, description, copied } = wish;
-    await this.wishesService.update({ id }, {}, copied + 1);
-    await this.wishesService.create(
-      { name, link, image, price, description },
-      req.user,
-    );
+    await this.wishesService.makeCopy(id, req.user);
   }
 
   @Get(':id')
@@ -85,27 +79,17 @@ export class WishesController {
 
   @Patch(':id')
   @UseGuards(JwtGuard)
-  async update(@Param('id') id: number, @Body() updateWishDto: UpdateWishDto) {
-    try {
-      await this.wishesService.update({ id }, updateWishDto);
-    } catch (err) {
-      return err.message;
-    }
+  async update(
+    @Param('id') id: number,
+    @Req() req: AuthRequest,
+    @Body() updateWishDto: UpdateWishDto,
+  ) {
+    await this.wishesService.update({ id }, updateWishDto, req.user);
   }
 
   @Delete(':id')
   @UseGuards(JwtGuard)
-  async removeOne(@Param('id') id: number) {
-    const wish = await this.wishesService.findOne({
-      where: { id },
-      relations: {
-        owner: true,
-        offers: {
-          user: true,
-        },
-      },
-    });
-    await this.wishesService.removeOne({ id });
-    return wish;
+  async removeOne(@Param('id') id: number, @Req() req: AuthRequest) {
+    return await this.wishesService.removeOne({ id }, req.user);
   }
 }
