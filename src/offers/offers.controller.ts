@@ -22,7 +22,7 @@ export class OffersController {
     @Body() createOfferDto: CreateOfferDto,
     @Req() req: AuthRequest,
   ) {
-    await this.offersService.create(createOfferDto, req.user);
+    return await this.offersService.create(createOfferDto, req.user);
   }
 
   @Get()

@@ -13,10 +13,6 @@ export class CreateWishlistDto {
   @MaxLength(250)
   name: string;
 
-  @IsOptional()
-  @MaxLength(1500)
-  description: string;
-
   @IsUrl()
   image: string;
 

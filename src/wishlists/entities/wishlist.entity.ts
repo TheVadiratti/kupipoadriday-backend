@@ -15,10 +15,6 @@ export class Wishlist extends Common {
   name: string;
 
   @Column()
-  @MaxLength(1500)
-  description: string;
-
-  @Column()
   @IsUrl()
   image: string;
 

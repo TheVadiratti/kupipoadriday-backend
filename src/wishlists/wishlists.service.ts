@@ -23,7 +23,13 @@ export class WishlistsService {
     createWishlistDto: CreateWishlistDto,
     user: User,
   ): Promise<Wishlist> {
-    const wishlist = { ...createWishlistDto, owner: user };
+    const { itemsId, ...other } = createWishlistDto;
+    const wishlist = this.wishlistRepository.create({ ...other });
+    wishlist.owner = user;
+    if (itemsId) {
+      const items = itemsId.map((id) => ({ id }));
+      wishlist.items = items as Wish[];
+    }
     return this.wishlistRepository.save(wishlist);
   }
 
