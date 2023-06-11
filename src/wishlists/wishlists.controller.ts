@@ -16,10 +16,10 @@ import { JwtGuard } from '../auth/auth.guard';
 import { UpdateWishlistDto } from './dto/update-wishlist.dto';
 
 @Controller('wishlists')
+@UseGuards(JwtGuard)
 export class WishlistsController {
   constructor(private readonly wishlistsService: WishlistsService) {}
 
-  @UseGuards(JwtGuard)
   @Post()
   async create(
     @Body() createWishlistDto: CreateWishlistDto,
@@ -52,28 +52,18 @@ export class WishlistsController {
   @Patch(':id')
   async update(
     @Param('id') id: number,
+    @Req() req: AuthRequest,
     @Body() updateWishlistDto: UpdateWishlistDto,
   ) {
-    try {
-      await this.wishlistsService.update({ id }, updateWishlistDto);
-      return await this.wishlistsService.findOne({ where: { id } });
-    } catch (err) {
-      return err.message;
-    }
+    return await this.wishlistsService.update(
+      { id },
+      updateWishlistDto,
+      req.user,
+    );
   }
 
   @Delete(':id')
-  async removeOne(@Param('id') id: number) {
-    const wishlist = await this.wishlistsService.findOne({
-      where: {
-        id,
-      },
-      relations: {
-        owner: true,
-        items: true,
-      },
-    });
-    await this.wishlistsService.delete({ id });
-    return wishlist;
+  async removeOne(@Param('id') id: number, @Req() req: AuthRequest) {
+    return await this.wishlistsService.delete({ id }, req.user);
   }
 }

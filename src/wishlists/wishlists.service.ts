@@ -1,16 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   Repository,
   FindManyOptions,
   FindOneOptions,
   FindOptionsWhere,
-  DeleteResult,
 } from 'typeorm';
 import { CreateWishlistDto } from './dto/create-wishlist.dto';
 import { UpdateWishlistDto } from './dto/update-wishlist.dto';
 import { Wishlist } from './entities/wishlist.entity';
 import { User } from 'src/users/entities/user.entity';
+import { Wish } from 'src/wishes/entities/wish.entity';
 
 @Injectable()
 export class WishlistsService {
@@ -38,16 +38,48 @@ export class WishlistsService {
   async update(
     query: FindOptionsWhere<Wishlist>,
     updateWishlistDto: UpdateWishlistDto,
+    user: User,
   ): Promise<Wishlist> {
-    const wishlist = await this.findOne({ where: query });
+    const wishlist = await this.findOne({
+      where: query,
+      relations: { owner: true },
+    });
+
+    if (wishlist.owner.username !== user.username) {
+      throw new ForbiddenException(
+        'Запрещено изменять чужие подборки подарков.',
+      );
+    }
+
     const { itemsId, ...other } = updateWishlistDto;
-    const items = itemsId.map((id) => ({ id }));
-    const updatedWishlist = { ...wishlist, ...other, items };
+    const updatedWishlist = { ...wishlist, ...other };
+    if (itemsId) {
+      const items = itemsId.map((id) => ({ id }));
+      updatedWishlist.items = items as Wish[];
+    }
 
     return this.wishlistRepository.save(updatedWishlist);
   }
 
-  delete(query: FindOptionsWhere<Wishlist>): Promise<DeleteResult> {
-    return this.wishlistRepository.delete(query);
+  async delete(
+    query: FindOptionsWhere<Wishlist>,
+    user: User,
+  ): Promise<Wishlist> {
+    const wishlist = await this.findOne({
+      where: query,
+      relations: {
+        owner: true,
+        items: true,
+      },
+    });
+
+    if (wishlist.owner.username !== user.username) {
+      throw new ForbiddenException(
+        'Запрещено удалять чужие подборки подарков.',
+      );
+    }
+
+    await this.wishlistRepository.delete(query);
+    return wishlist;
   }
 }
