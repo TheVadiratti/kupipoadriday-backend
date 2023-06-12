@@ -5,6 +5,7 @@ import {
   FindManyOptions,
   FindOneOptions,
   FindOptionsWhere,
+  DataSource,
 } from 'typeorm';
 import { CreateWishlistDto } from './dto/create-wishlist.dto';
 import { UpdateWishlistDto } from './dto/update-wishlist.dto';
@@ -17,6 +18,7 @@ export class WishlistsService {
   constructor(
     @InjectRepository(Wishlist)
     private wishlistRepository: Repository<Wishlist>,
+    private readonly dataSource: DataSource,
   ) {}
 
   async create(
@@ -46,46 +48,73 @@ export class WishlistsService {
     updateWishlistDto: UpdateWishlistDto,
     user: User,
   ): Promise<Wishlist> {
-    const wishlist = await this.findOne({
-      where: query,
-      relations: { owner: true },
-    });
+    const queryRunner = this.dataSource.createQueryRunner();
 
-    if (wishlist.owner.username !== user.username) {
-      throw new ForbiddenException(
-        'Запрещено изменять чужие подборки подарков.',
-      );
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const wishlist = await this.findOne({
+        where: query,
+        relations: { owner: true },
+      });
+
+      if (wishlist.owner.username !== user.username) {
+        throw new ForbiddenException(
+          'Запрещено изменять чужие подборки подарков.',
+        );
+      }
+
+      const { itemsId, ...other } = updateWishlistDto;
+      const updatedWishlist = { ...wishlist, ...other };
+      if (itemsId) {
+        const items = itemsId.map((id) => ({ id }));
+        updatedWishlist.items = items as Wish[];
+      }
+
+      const result = await this.wishlistRepository.save(updatedWishlist);
+      await queryRunner.commitTransaction();
+      return result;
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw err;
+    } finally {
+      await queryRunner.release();
     }
-
-    const { itemsId, ...other } = updateWishlistDto;
-    const updatedWishlist = { ...wishlist, ...other };
-    if (itemsId) {
-      const items = itemsId.map((id) => ({ id }));
-      updatedWishlist.items = items as Wish[];
-    }
-
-    return this.wishlistRepository.save(updatedWishlist);
   }
 
   async delete(
     query: FindOptionsWhere<Wishlist>,
     user: User,
   ): Promise<Wishlist> {
-    const wishlist = await this.findOne({
-      where: query,
-      relations: {
-        owner: true,
-        items: true,
-      },
-    });
+    const queryRunner = this.dataSource.createQueryRunner();
 
-    if (wishlist.owner.username !== user.username) {
-      throw new ForbiddenException(
-        'Запрещено удалять чужие подборки подарков.',
-      );
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const wishlist = await this.findOne({
+        where: query,
+        relations: {
+          owner: true,
+          items: true,
+        },
+      });
+
+      if (wishlist.owner.username !== user.username) {
+        throw new ForbiddenException(
+          'Запрещено удалять чужие подборки подарков.',
+        );
+      }
+
+      await this.wishlistRepository.delete(query);
+
+      await queryRunner.commitTransaction();
+      return wishlist;
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw err;
+    } finally {
+      await queryRunner.release();
     }
-
-    await this.wishlistRepository.delete(query);
-    return wishlist;
   }
 }
