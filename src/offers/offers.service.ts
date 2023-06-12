@@ -39,7 +39,11 @@ export class OffersService {
       const offer = this.offerRepository.create(createOfferDto);
       offer.user = user;
       offer.item = { id } as Wish;
-      return this.offerRepository.save(offer);
+
+      const newOffer = await this.offerRepository.save(offer);
+
+      await queryRunner.commitTransaction();
+      return newOffer;
     } catch (err) {
       await queryRunner.rollbackTransaction();
       throw err;
